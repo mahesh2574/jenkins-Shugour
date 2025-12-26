@@ -1,11 +1,10 @@
-
 pipeline {
     agent any
     environment {
         repo = "gmahesh747/pythonws"
         tag = "${BUILD_NUMBER}"
         docker_user = "gmahesh747"
-        docker_password = "Mahesh@999"
+        docker_password = "XXXXXXX"
     }
     stages {
         stage ('checkout') {
@@ -15,12 +14,15 @@ pipeline {
         }
         stage('build') {
             steps {
+                dir('python-dock-WS') {
                 sh 'docker build -t $repo:$tag .'
             
             }
         }
+        }
         stage('push') {
             steps {
+                dir('python-dock-WS') {
                 sh '''
                     echo "$docker_password" | docker login -u "$docker_user" --password-stdin
                     docker push $repo:$tag
@@ -28,8 +30,10 @@ pipeline {
                 '''
             }
         }
+        }
         stage('run') {
             steps {
+                dir('python-dock-WS') {
                 sh '''
                   docker rm -f pytws || true
                   docker run -d --name pytws -p 5000:5000 $repo:$tag
@@ -38,4 +42,5 @@ pipeline {
             }
         }
     }
+}
 }
