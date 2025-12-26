@@ -1,0 +1,41 @@
+
+pipeline {
+    agent any
+    environment {
+        repo = "gmahesh747/pythonws"
+        tag = "${BUILD_NUMBER}"
+        docker_user = "gmahesh747"
+        docker_password = "Mahesh@999"
+    }
+    stages {
+        stage ('checkout') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('build') {
+            steps {
+                sh 'docker build -t $repo:$tag .'
+            
+            }
+        }
+        stage('push') {
+            steps {
+                sh '''
+                    echo "$docker_password" | docker login -u "$docker_user" --password-stdin
+                    docker push $repo:$tag
+                    docker logout
+                '''
+            }
+        }
+        stage('run') {
+            steps {
+                sh '''
+                  docker rm -f pytws || true
+                  docker run -d --name pytws -p 5000:5000 $repo:$tag
+                '''
+
+            }
+        }
+    }
+}
