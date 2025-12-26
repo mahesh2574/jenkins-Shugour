@@ -4,7 +4,7 @@ pipeline {
         repo = "gmahesh747/pythonws"
         tag = "${BUILD_NUMBER}"
         docker_user = "gmahesh747"
-        docker_password = "XXXXXXX"
+        docker_password = "Mahesh@999"
     }
     stages {
         stage ('checkout') {
