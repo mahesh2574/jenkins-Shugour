@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+    environment {
+        DOCKER_REPO = "gmahesh747/httpd"
+        IMAGE_TAG  = "${BUILD_NUMBER}"
+        // ⚠️ NOT SECURE – ONLY FOR LEARNING
+        DOCKER_USER = "gmahesh747"
+        DOCKER_PASS = "Mahesh@999"
+    }
+    stages {
+
+        stage('Git Clone') {
+            steps {
+                checkout scm
+            }
+        }
+        stage('Maven Build') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh 'mvn clean package'
+                }
+            }
+        }
+        stage('Docker Build') {
+            steps {
+                dir('3-java-jenkins-docker-app') {
+                    sh "docker build -t ${DOCKER_REPO}:${IMAGE_TAG} ."
+                }
+            }
+        }
+        stage('Docker Push (INSECURE)') {
+            steps {
+                sh '''
+                    echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                    docker push ${DOCKER_REPO}:${IMAGE_TAG}
+                    docker logout
+                '''
+            }
+        }
+        stage('Workspace Clean') {
+            steps {
+                cleanWs()
+            }
+        }
+    }
+}
+
